@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}User Listing{% endblock %}
+{% block pagetitle %}User Listing{% endblock %}
+{% block content %}
+  <ul>
+    {% for row in users %}
+      <li><a href="/users/{{row.id}}">{{row.first_name}} {{row.last_name}}</a></li>
+    {% endfor %}
+  </ul>
+  <form action="/users/new">
+    <button id="addUser">Add User</button>
+  </form>
+  
+{% endblock %}

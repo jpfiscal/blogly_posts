@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Edit User Form{% endblock %}
+{% block pagetitle %}Edit User Details{% endblock %}
+{% block content %}
+  <form action="/users/{{user.id}}/edit" method="POST">
+    <label for="ip_first_name">First Name</label><br>
+    <input type="text" id="ip_first_name" name="ip_first_name" value="{{user.first_name}}"><br>
+    <label for="ip_last_name">Last Name</label><br>
+    <input type="text" id="ip_last_name" name="ip_last_name" value="{{user.last_name}}"><br>
+    <label for="ip_img">Image URL</label><br>
+    <input type="text" id="ip_img" name= "ip_img" value="{{user.image_url}}"><br>
+    <input type="submit" id="submit_user" name="submit_user" value="Save">
+  </form>
+  <form action="/users/{{user.id}}">
+    <button>Cancel</button>
+  </form>
+{% endblock %}
