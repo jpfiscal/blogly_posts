@@ -19,7 +19,7 @@ class User(db.Model):
                            unique = True)
     last_name = db.Column(db.String(50),
                            nullable = False,
-                           unique = True)
+                           unique = False)
     image_url = db.Column(db.String(200),
                           nullable = True,
                           default = 'img/default_profile.jpeg')
