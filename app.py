@@ -1,18 +1,18 @@
 """Blogly application."""
 
 from flask import Flask, request, render_template, redirect
-from models import db, connect_db, User
+from models import db, connect_db, User, Post
 from flask_debugtoolbar import DebugToolbarExtension
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "SECRET!"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///test_blogly'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///blogly'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
 debug = DebugToolbarExtension(app)
 
-with app.app_context():
+with app.app_context(): 
     connect_db(app)
     db.create_all()
 
@@ -41,6 +41,7 @@ def add_user():
     img = request.form['ip_img']
 
     user = User(first_name=first_name, last_name=last_name, image_url=img)
+    
     db.session.add(user)
     db.session.commit()
 
@@ -78,3 +79,55 @@ def delete_user(user_id):
 
     db.session.commit()
     return redirect("/users")
+
+@app.route("/users/<int:user_id>/posts/new")
+def new_post_form(user_id):
+    """load new post form"""
+    user = User.query.filter_by(id=user_id).first()
+    return render_template("new_post.html", user=user)
+
+@app.route("/users/<int:user_id>/posts/new", methods=["POST"])
+def create_post(user_id):
+    """save new post for selected user"""
+    title = request.form['ip_title']
+    content = request.form['ip_content']
+
+    post = Post(title=title, content=content, user_id=user_id)
+    
+    db.session.add(post)
+    db.session.commit()
+
+    return redirect(f"/users/{user_id}")
+    
+@app.route("/posts/<int:post_id>")
+def get_post(post_id):
+    """Load a selected post onto a page"""
+    post = Post.query.filter_by(id=post_id).first()
+    return render_template("post_details.html", post=post)
+
+@app.route("/posts/<int:post_id>/edit")
+def edit_post_form(post_id):
+    """load form to edit selected post"""
+    post = Post.query.filter_by(id=post_id).first()
+    return render_template("edit_post.html", post=post)
+
+@app.route("/posts/<int:post_id>/edit", methods=["POST"])
+def edit_post(post_id):
+    """edit the existing post record in the table"""
+    post = Post.query.filter_by(id=post_id).first()
+    post.title = request.form['ip_title']
+    post.content = request.form['ip_content']
+    
+    db.session.add(post)
+    db.session.commit()
+    return redirect(f"/posts/{post_id}")
+
+@app.route("/posts/<int:post_id>/delete", methods=["POST"])
+def delete_post(post_id):
+    """delete selected post from db"""
+    post = Post.query.filter_by(id=post_id).first()
+    user_id = post.user_id
+    Post.query.filter_by(id=post_id).delete()
+    db.session.commit()
+
+    return redirect(f"/users/{user_id}")

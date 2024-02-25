@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}New Post Form{% endblock %}
+{% block pagetitle %}Add Post for {{user.first_name}} {{user.last_name}}{% endblock %}
+{% block content %}
+  <form action="/users/{{user.id}}/posts/new" method="POST">
+    <label for="ip_title">Title</label><br>
+    <input type="text" id="ip_title" name="ip_title" placeholder="Enter post title"><br>
+    <label for="ip_content">Content</label><br>
+    <input type="text" id="ip_content" name="ip_content" placeholder="Post content..."><br>
+    <input type="submit" id="submit_post" name="submit_post" value="Add">
+  </form>
+  <form action="/users/"{{user.id}}>
+    <button id="btn_cancel">Cancel</button>
+  </form>
+{% endblock %}

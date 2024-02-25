@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Edit Post Form{% endblock %}
+{% block pagetitle %}Edit Post{% endblock %}
+{% block content %}
+  <form action="/posts/{{post.id}}/edit" method="POST">
+    <label for="ip_title">Title</label><br>
+    <input type="text" id="ip_title" name="ip_title" value="{{post.title}}"><br>
+    <label for="ip_content">Content</label><br>
+    <input type="text" id="ip_content" name="ip_content" value="{{post.content}}"><br>
+    <input type="submit" id="submit_post_edits" name="submit_post_edits" value="Edit">
+  </form>
+  <form action="/posts/{{post.id}}">
+    <button id="btn_cancel">Cancel</button>
+  </form>
+{% endblock %}

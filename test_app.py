@@ -1,10 +1,10 @@
 from unittest import TestCase
 
 from app import app
-from models import db, User
+from models import db, User, Post
 
 # Use test database and don't clutter tests with SQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///test_blogly'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///blogly_test'
 app.config['SQLALCHEMY_ECHO'] = False
 
 # Make Flask errors be real errors, rather than HTML pages with error info
@@ -23,14 +23,20 @@ class UserViewsTestCase(TestCase):
     def setUp(self):
         """Add sample user."""
         with app.app_context():
+            Post.query.delete()
             User.query.delete()
+            
 
             user = User(first_name="testUser", last_name="Testy", image_url="img/default_profile.jpeg")
-            
             db.session.add(user)
             db.session.commit()
 
+            post = Post(title="test title", content="This is a test...", user_id=user.id)
+            db.session.add(post)
+            db.session.commit()
+
             self.user_id = user.id
+            self.post_id = post.id
     
     def tearDown(self):
         """Clean up uncommitted transactions"""
@@ -71,3 +77,36 @@ class UserViewsTestCase(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertIn("TestUser_Edit Testy", html)
 
+    def test_list_post(self):
+        with app.test_client() as client:
+            resp = client.get(f"/users/{self.user_id}")
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("test title", html)
+
+    def test_edit_post(self):
+        with app.test_client() as client:
+            d = {"ip_title": "TestTitle_Edit", "ip_content": "Test content edit"}
+            resp = client.post(f"/posts/{self.post_id}/edit", data=d, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("TestTitle_Edit", html)
+
+    def test_add_post(self):
+        with app.test_client() as client:
+            d = {"ip_title": "TestTitle_Add", "ip_content": "Additional test content"}
+            resp = client.post(f"/users/{self.user_id}/posts/new", data=d, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("TestTitle_Add", html)
+
+    def test_delete_post(self):
+        with app.test_client() as client:
+            resp = client.post(f"/posts/{self.post_id}/delete", follow_redirects=True)
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertNotIn("TestTitle_Add", html)
