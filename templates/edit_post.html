@@ -7,6 +7,11 @@
     <input type="text" id="ip_title" name="ip_title" value="{{post.title}}"><br>
     <label for="ip_content">Content</label><br>
     <input type="text" id="ip_content" name="ip_content" value="{{post.content}}"><br>
+    {% for tag in tags %}
+      <input type="checkbox" id="{{tag.id}}" name="tags[]" value="{{tag.id}}"
+      {% if tag.id in post_tags_ids %} checked {% endif %}>
+      <label for="{{tag.id}}"> {{tag.name}}</label><br>
+    {% endfor %}
     <input type="submit" id="submit_post_edits" name="submit_post_edits" value="Edit">
   </form>
   <form action="/posts/{{post.id}}">
